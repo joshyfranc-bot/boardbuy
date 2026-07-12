@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    environment:
+      POSTGRES_DB: boardbuy
+      POSTGRES_USER: boardbuy
+      POSTGRES_PASSWORD: boardbuy
+    volumes: [pgdata:/var/lib/postgresql/data]
+    ports: ["5432:5432"]
+
+  backend:
+    build: ./backend
+    env_file: .env
+    volumes: ["./backend:/app"]
+    ports: ["8000:8000"]
+    depends_on: [db]
+    command: python manage.py runserver 0.0.0.0:8000
+
+  frontend:
+    build: ./frontend
+    env_file: .env
+    volumes: ["./frontend:/app", "/app/node_modules"]
+    ports: ["3000:3000"]
+    depends_on: [backend]
+    command: npm run dev
+
+volumes:
+  pgdata:
